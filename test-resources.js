@@ -3,6 +3,10 @@ const path = require('path');
 
 // 测试配置
 const testConfig = {
+  proxy: {
+    http_proxy: "http://127.0.0.1:1080",
+    https_proxy: "http://127.0.0.1:1080"
+  },
   features: {
     ai_summary: true,
     download_resources: true
@@ -13,11 +17,6 @@ const testConfig = {
     max_file_size_mb: 10,
     allowed_extensions: [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"],
     assets_folder: "assets"
-  },
-  ai: {
-    proxy: {
-      enabled: false
-    }
   }
 };
 
@@ -31,6 +30,10 @@ const testMarkdown = `# 测试文章
 一些文本内容...
 
 ![测试图片2](https://via.placeholder.com/400x300.jpg?text=Test+Image+2)
+
+Base64图片测试：
+
+![Base64图片](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77zgAAAABJRU5ErkJggg==)
 
 更多内容...
 
@@ -56,8 +59,8 @@ async function testResourceDownloader() {
   // 测试生成文件名
   console.log('2. 测试生成本地文件名:');
   images.forEach((img, index) => {
-    const fileName = downloader.generateLocalFileName(img.originalUrl, index);
-    console.log(`  ${img.originalUrl} -> ${fileName}`);
+    const fileName = downloader.generateLocalFileName(img.originalUrl, index, img.type);
+    console.log(`  ${img.originalUrl.substring(0, 50)}... -> ${fileName}`);
   });
   console.log();
   

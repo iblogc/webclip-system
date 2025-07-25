@@ -2,6 +2,10 @@
   "gist_id": "your-gist-id-here",
   "github_token": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "output_dir": "~/Documents/KnowledgeRepo",
+  "proxy": {
+    "http_proxy": "http://127.0.0.1:7890",
+    "https_proxy": "http://127.0.0.1:7890"
+  },
   "ai": {
     "providers": [
       { 
@@ -30,12 +34,7 @@
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "comment": "阿里云通义千问 API 示例"
       }
-    ],
-    "proxy": {
-      "enabled": false,
-      "http_proxy": "http://127.0.0.1:7890",
-      "https_proxy": "http://127.0.0.1:7890"
-    }
+    ]
   },
   "git": {
     "auto_commit": true,

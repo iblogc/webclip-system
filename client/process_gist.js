@@ -106,7 +106,8 @@ class GistProcessor {
         try {
           const aiResult = await summarizeContent(
             markdownContent,
-            this.config.ai
+            this.config.ai,
+            this.config
           );
           summary = aiResult.summary;
           tags = aiResult.tags;

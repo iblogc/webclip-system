@@ -1,8 +1,9 @@
-const axios = require('axios');
+const { NetworkHelper } = require('./network-helper');
 
 class AIProvider {
-    constructor(config) {
+    constructor(config, globalConfig) {
         this.config = config;
+        this.networkHelper = new NetworkHelper(globalConfig);
     }
 
     async summarize(content) {
@@ -13,26 +14,7 @@ class AIProvider {
 class OpenAIProvider extends AIProvider {
     async summarize(content) {
         const { OpenAI } = require('openai');
-        const openaiConfig = {
-            apiKey: this.config.api_key
-        };
         
-        // 如果配置了自定义baseURL，则使用它
-        if (this.config.base_url) {
-            openaiConfig.baseURL = this.config.base_url;
-        }
-        
-        // 添加代理支持
-        if (this.config.proxy && this.config.proxy.enabled) {
-            const { HttpsProxyAgent } = require('https-proxy-agent');
-            const proxyUrl = this.config.proxy.https_proxy || this.config.proxy.http_proxy;
-            if (proxyUrl) {
-                openaiConfig.httpAgent = new HttpsProxyAgent(proxyUrl);
-            }
-        }
-        
-        const openai = new OpenAI(openaiConfig);
-
         const prompt = `请为以下网页内容生成简明摘要和关键词标签：
 
 内容：
@@ -49,14 +31,36 @@ ${content.substring(0, 4000)} ${content.length > 4000 ? '...' : ''}
 - 标签最多5个，使用中文
 - 只返回JSON，不要其他内容`;
 
-        const response = await openai.chat.completions.create({
-            model: this.config.model || 'gpt-3.5-turbo',
-            messages: [
-                { role: 'user', content: prompt }
-            ],
-            max_tokens: 500,
-            temperature: 0.3
-        });
+        // 使用网络助手进行带重试的请求
+        const response = await this.networkHelper.openaiRequestWithRetry(
+            (config) => {
+                const openaiConfig = {
+                    apiKey: this.config.api_key
+                };
+                
+                // 如果配置了自定义baseURL，则使用它
+                if (this.config.base_url) {
+                    openaiConfig.baseURL = this.config.base_url;
+                }
+                
+                // 添加代理配置
+                if (config.httpAgent) {
+                    openaiConfig.httpAgent = config.httpAgent;
+                }
+                
+                return new OpenAI(openaiConfig);
+            },
+            async (openai) => {
+                return await openai.chat.completions.create({
+                    model: this.config.model || 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'user', content: prompt }
+                    ],
+                    max_tokens: 500,
+                    temperature: 0.3
+                });
+            }
+        );
 
         const result = response.choices[0].message.content.trim();
         
@@ -97,36 +101,26 @@ ${content.substring(0, 4000)} ${content.length > 4000 ? '...' : ''}
         const baseUrl = this.config.base_url || 'https://generativelanguage.googleapis.com';
         const apiUrl = `${baseUrl}/v1beta/models/${this.config.model || 'gemini-pro'}:generateContent?key=${this.config.api_key}`;
 
-        // 构建请求配置
+        const requestData = {
+            contents: [{
+                parts: [{
+                    text: prompt
+                }]
+            }],
+            generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 500
+            }
+        };
+
         const requestConfig = {
             headers: {
                 'Content-Type': 'application/json'
             }
         };
 
-        // 添加代理支持
-        if (this.config.proxy && this.config.proxy.enabled) {
-            const { HttpsProxyAgent } = require('https-proxy-agent');
-            const proxyUrl = this.config.proxy.https_proxy || this.config.proxy.http_proxy;
-            if (proxyUrl) {
-                requestConfig.httpsAgent = new HttpsProxyAgent(proxyUrl);
-            }
-        }
-
-        const response = await axios.post(apiUrl,
-            {
-                contents: [{
-                    parts: [{
-                        text: prompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.3,
-                    maxOutputTokens: 500
-                }
-            },
-            requestConfig
-        );
+        // 使用网络助手进行带重试的请求
+        const response = await this.networkHelper.post(apiUrl, requestData, requestConfig);
 
         const result = response.data.candidates[0].content.parts[0].text.trim();
         
@@ -145,7 +139,7 @@ ${content.substring(0, 4000)} ${content.length > 4000 ? '...' : ''}
     }
 }
 
-async function summarizeContent(content, aiConfig) {
+async function summarizeContent(content, aiConfig, globalConfig) {
     const providers = aiConfig.providers || [];
     
     if (providers.length === 0) {
@@ -159,18 +153,12 @@ async function summarizeContent(content, aiConfig) {
         try {
             let provider;
             
-            // 将代理配置传递给提供商
-            const configWithProxy = {
-                ...providerConfig,
-                proxy: aiConfig.proxy
-            };
-            
             switch (providerConfig.type) {
                 case 'openai':
-                    provider = new OpenAIProvider(configWithProxy);
+                    provider = new OpenAIProvider(providerConfig, globalConfig);
                     break;
                 case 'gemini':
-                    provider = new GeminiProvider(configWithProxy);
+                    provider = new GeminiProvider(providerConfig, globalConfig);
                     break;
                 default:
                     console.warn(`⚠️ 未知的AI提供商类型: ${providerConfig.type}`);

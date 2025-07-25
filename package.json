@@ -8,20 +8,28 @@
     "setup": "node setup.js",
     "test": "node test-system.js",
     "test:baseurl": "node test-baseurl.js",
+    "test:network": "node test-network.js",
+    "test:resources": "node test-resources.js",
+    "test:base64": "node test-base64.js",
+    "test:complete": "node test-complete.js",
     "process": "node client/process_gist.js"
   },
   "dependencies": {
-    "puppeteer": "^21.0.0",
     "@mozilla/readability": "^0.4.4",
-    "turndown": "^7.1.2",
-    "jsdom": "^22.1.0",
     "axios": "^1.5.0",
+    "https-proxy-agent": "^7.0.6",
     "js-yaml": "^4.1.0",
+    "jsdom": "^22.1.0",
     "openai": "^4.0.0",
+    "puppeteer": "^21.0.0",
     "simple-git": "^3.19.1",
-    "https-proxy-agent": "^7.0.0"
+    "turndown": "^7.1.2"
   },
-  "keywords": ["webclip", "markdown", "automation"],
+  "keywords": [
+    "webclip",
+    "markdown",
+    "automation"
+  ],
   "author": "",
   "license": "MIT"
 }

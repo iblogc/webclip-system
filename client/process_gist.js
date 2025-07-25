@@ -4,11 +4,13 @@ const axios = require("axios");
 const { summarizeContent } = require("./summarize");
 const { buildMarkdown } = require("./markdown-builder");
 const { syncToGit } = require("./git-sync");
+const { ResourceDownloader } = require("./resource-downloader");
 
 class GistProcessor {
   constructor() {
     this.config = null;
     this.isProcessing = false;
+    this.resourceDownloader = null;
   }
 
   async loadConfig() {
@@ -26,6 +28,9 @@ class GistProcessor {
         );
       }
 
+      // 初始化资源下载器
+      this.resourceDownloader = new ResourceDownloader(this.config);
+      
       console.log("✅ 配置加载成功");
     } catch (error) {
       console.error("❌ 配置加载失败:", error.message);
@@ -93,20 +98,24 @@ class GistProcessor {
       // 1. 抓取网页内容并转换为Markdown
       const markdownContent = await buildMarkdown(item.url);
 
-      // 2. 生成AI摘要和标签
+      // 2. 生成AI摘要和标签（可选）
       let summary = "";
       let tags = [];
 
-      try {
-        const aiResult = await summarizeContent(
-          markdownContent,
-          this.config.ai
-        );
-        summary = aiResult.summary;
-        tags = aiResult.tags;
-        console.log("✅ AI摘要生成成功");
-      } catch (error) {
-        console.warn("⚠️ AI摘要生成失败，跳过:", error.message);
+      if (this.config.features?.ai_summary) {
+        try {
+          const aiResult = await summarizeContent(
+            markdownContent,
+            this.config.ai
+          );
+          summary = aiResult.summary;
+          tags = aiResult.tags;
+          console.log("✅ AI摘要生成成功");
+        } catch (error) {
+          console.warn("⚠️ AI摘要生成失败，跳过:", error.message);
+        }
+      } else {
+        console.log("🤖 AI摘要功能已禁用");
       }
 
       // 3. 构建完整的Markdown文件
@@ -124,15 +133,34 @@ class GistProcessor {
 
       // 4. 保存文件
       const fileName = this.generateFileName(item);
-      const filePath = await this.saveMarkdownFile(
-        fileName,
-        item.category,
-        fullMarkdown
-      );
-
+      const categoryDir = path.join(this.config.output_dir, item.category);
+      const filePath = path.join(categoryDir, fileName);
+      
+      // 确保目录存在
+      await fs.mkdir(categoryDir, { recursive: true });
+      
+      // 写入初始文件
+      await fs.writeFile(filePath, fullMarkdown, "utf8");
       console.log(`✅ 文件保存成功: ${filePath}`);
 
-      // 5. Git同步
+      // 5. 下载并处理图片资源
+      try {
+        const updatedMarkdown = await this.resourceDownloader.processMarkdownImages(
+          fullMarkdown,
+          categoryDir,
+          fileName
+        );
+        
+        // 如果内容有更新，重新写入文件
+        if (updatedMarkdown !== fullMarkdown) {
+          await fs.writeFile(filePath, updatedMarkdown, "utf8");
+          console.log("✅ 图片资源处理完成，文件已更新");
+        }
+      } catch (error) {
+        console.warn("⚠️ 图片资源处理失败:", error.message);
+      }
+
+      // 6. Git同步
       if (this.config.git.auto_commit) {
         try {
           await syncToGit(
@@ -178,18 +206,7 @@ class GistProcessor {
     return `${date}-${title}.md`;
   }
 
-  async saveMarkdownFile(fileName, category, content) {
-    const categoryDir = path.join(this.config.output_dir, category);
-    const filePath = path.join(categoryDir, fileName);
 
-    // 确保目录存在
-    await fs.mkdir(categoryDir, { recursive: true });
-
-    // 写入文件
-    await fs.writeFile(filePath, content, "utf8");
-
-    return filePath;
-  }
 
   async saveErrorCopy(item, error) {
     try {

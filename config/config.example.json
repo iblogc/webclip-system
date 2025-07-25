@@ -45,5 +45,16 @@
     "interval_minutes": 10,
     "timeout_seconds": 30,
     "max_retries": 3
+  },
+  "features": {
+    "ai_summary": true,
+    "download_resources": true
+  },
+  "resources": {
+    "download_images": true,
+    "download_timeout": 10,
+    "max_file_size_mb": 10,
+    "allowed_extensions": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"],
+    "assets_folder": "assets"
   }
 }

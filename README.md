@@ -6,7 +6,9 @@
 
 - 🌐 **浏览器一键收藏**: 通过油猴脚本在任何网页上一键收藏
 - 📝 **自动Markdown转换**: 使用Puppeteer + Readability提取正文内容
-- 🤖 **AI智能摘要**: 支持OpenAI和Gemini生成摘要和标签
+- 🤖 **AI智能摘要**: 支持OpenAI和Gemini生成摘要和标签（可开关）
+- 📷 **图片资源下载**: 自动下载并本地化Markdown中的图片资源
+- 🌐 **代理支持**: AI调用和图片下载支持HTTP代理
 - 📁 **分类管理**: 按分类自动整理文件
 - 🔄 **Git自动同步**: 自动提交并推送到GitHub仓库
 - ⏰ **定时处理**: 支持macOS和Windows定时任务
@@ -39,7 +41,23 @@ npx puppeteer browsers install chrome
         "model": "gpt-3.5-turbo",
         "base_url": "https://api.openai.com/v1"
       }
-    ]
+    ],
+    "proxy": {
+      "enabled": false,
+      "http_proxy": "http://127.0.0.1:7890",
+      "https_proxy": "http://127.0.0.1:7890"
+    }
+  },
+  "features": {
+    "ai_summary": true,
+    "download_resources": true
+  },
+  "resources": {
+    "download_images": true,
+    "download_timeout": 10,
+    "max_file_size_mb": 10,
+    "allowed_extensions": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"],
+    "assets_folder": "assets"
   }
 }
 ```
@@ -96,6 +114,7 @@ webclip-system/
 │   ├── process_gist.js     # 主处理程序
 │   ├── summarize.js        # AI摘要模块
 │   ├── markdown-builder.js # Markdown构建器
+│   ├── resource-downloader.js # 资源下载模块
 │   └── git-sync.js         # Git同步模块
 ├── launchd/               # macOS定时任务
 │   └── com.webclip.processor.plist
@@ -134,10 +153,47 @@ webclip-system/
         "api_key": "AI...",
         "model": "gemini-pro"
       }
-    ]
+    ],
+    "proxy": {
+      "enabled": true,
+      "http_proxy": "http://127.0.0.1:7890",
+      "https_proxy": "http://127.0.0.1:7890"
+    }
   }
 }
 ```
+
+### 功能开关配置
+
+```json
+{
+  "features": {
+    "ai_summary": true,        // 是否启用AI摘要和标签生成
+    "download_resources": true // 是否启用资源下载功能
+  }
+}
+```
+
+### 资源下载配置
+
+```json
+{
+  "resources": {
+    "download_images": true,                                    // 是否下载图片
+    "download_timeout": 10,                                     // 下载超时时间（秒）
+    "max_file_size_mb": 10,                                     // 最大文件大小（MB）
+    "allowed_extensions": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"], // 允许的文件扩展名
+    "assets_folder": "assets"                                   // 资源文件夹名称
+  }
+}
+```
+
+**资源下载功能说明**：
+- 自动识别Markdown中的图片链接
+- 下载图片到本地 `assets/文章名/` 目录
+- 自动替换Markdown中的图片引用为本地路径
+- 支持代理下载
+- 支持文件大小和类型限制
 
 ## 📱 定时任务设置
 

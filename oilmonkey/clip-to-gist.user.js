@@ -844,7 +844,7 @@
         if (response.status === 200) {
           const gist = JSON.parse(response.responseText);
           showNotification(
-            `✅ 连接成功！Gist: ${gist.description}`,
+            `✅ Gist 连接成功！`,
             "success"
           );
         } else if (response.status === 404) {

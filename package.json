@@ -1,0 +1,26 @@
+{
+  "name": "webclip-system",
+  "version": "1.0.0",
+  "description": "Web收藏转Markdown系统",
+  "main": "client/process_gist.js",
+  "scripts": {
+    "start": "node client/process_gist.js",
+    "setup": "node setup.js",
+    "test": "node test-system.js",
+    "test:baseurl": "node test-baseurl.js",
+    "process": "node client/process_gist.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "@mozilla/readability": "^0.4.4",
+    "turndown": "^7.1.2",
+    "jsdom": "^22.1.0",
+    "axios": "^1.5.0",
+    "js-yaml": "^4.1.0",
+    "openai": "^4.0.0",
+    "simple-git": "^3.19.1"
+  },
+  "keywords": ["webclip", "markdown", "automation"],
+  "author": "",
+  "license": "MIT"
+}

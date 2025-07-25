@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web收藏脚本测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007aff;
+        }
+        .code {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+        }
+        .steps {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 Web收藏脚本测试页面</h1>
+        <p>用于测试油猴脚本的配置功能</p>
+    </div>
+
+    <div class="feature">
+        <h2>📋 测试步骤</h2>
+        <div class="steps">
+            <h3>1. 安装脚本</h3>
+            <p>确保已在Tampermonkey中安装了最新版本的Web收藏脚本</p>
+            
+            <h3>2. 首次配置</h3>
+            <p>如果是首次使用，应该看到右下角的⚙️配置按钮</p>
+            
+            <h3>3. 配置测试</h3>
+            <p>点击配置按钮，测试以下功能：</p>
+            <ul>
+                <li>填写Gist ID和GitHub Token</li>
+                <li>修改分类选项</li>
+                <li>调整按钮位置和大小</li>
+                <li>更改按钮颜色</li>
+                <li>切换各种开关选项</li>
+            </ul>
+            
+            <h3>4. 收藏测试</h3>
+            <p>配置完成后，按钮应变成📌，测试收藏功能</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <h2>🎛️ 配置功能清单</h2>
+        <ul>
+            <li>✅ <strong>基础配置</strong>: Gist ID, GitHub Token</li>
+            <li>✅ <strong>分类管理</strong>: 自定义分类选项</li>
+            <li>✅ <strong>按钮位置</strong>: 四个角落可选</li>
+            <li>✅ <strong>按钮大小</strong>: 40-80px滑块调节</li>
+            <li>✅ <strong>按钮颜色</strong>: 颜色选择器</li>
+            <li>✅ <strong>自动聚焦</strong>: 开关控制</li>
+            <li>✅ <strong>通知设置</strong>: 开关和持续时间</li>
+            <li>✅ <strong>配置重置</strong>: 一键恢复默认</li>
+        </ul>
+    </div>
+
+    <div class="feature">
+        <h2>🎯 交互测试</h2>
+        <div class="steps">
+            <h3>左键点击</h3>
+            <p>配置完成后，左键点击📌按钮应该打开收藏弹窗</p>
+            
+            <h3>右键点击</h3>
+            <p>右键点击📌按钮应该打开配置界面</p>
+            
+            <h3>键盘快捷键</h3>
+            <p>在弹窗中测试以下快捷键：</p>
+            <ul>
+                <li><code>Esc</code> - 关闭弹窗</li>
+                <li><code>Ctrl/Cmd + Enter</code> - 提交表单</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="warning">
+        <h3>⚠️ 注意事项</h3>
+        <ul>
+            <li>首次使用需要配置Gist ID和GitHub Token</li>
+            <li>配置数据保存在浏览器本地存储中</li>
+            <li>右键菜单可能被浏览器默认菜单覆盖，请快速点击</li>
+            <li>如果按钮不显示，请检查脚本是否正确安装和启用</li>
+        </ul>
+    </div>
+
+    <div class="feature">
+        <h2>🐛 调试信息</h2>
+        <p>如果遇到问题，请打开浏览器开发者工具查看控制台信息</p>
+        <div class="code">
+            // 查看当前配置
+            console.log(GM_getValue('webclip_config'));
+            
+            // 重置配置
+            GM_deleteValue('webclip_config');
+            location.reload();
+        </div>
+    </div>
+
+    <div class="feature">
+        <h2>📊 测试内容示例</h2>
+        <p>这是一个测试页面，包含以下内容供收藏测试：</p>
+        <ul>
+            <li><strong>标题</strong>: Web收藏脚本测试页面</li>
+            <li><strong>URL</strong>: file:///path/to/test-config.html</li>
+            <li><strong>内容</strong>: 包含配置说明和测试步骤</li>
+        </ul>
+        
+        <h3>测试文章内容</h3>
+        <p>这里是一些测试内容，用于验证网页收藏功能是否正常工作。内容包括配置说明、功能介绍和使用指南。</p>
+        
+        <p>Web收藏系统是一个强大的知识管理工具，支持一键收藏网页并自动转换为Markdown格式。通过AI技术生成摘要和标签，帮助用户更好地组织和管理收藏的内容。</p>
+    </div>
+
+    <script>
+        // 页面加载完成后的提示
+        window.addEventListener('load', function() {
+            console.log('🔧 Web收藏脚本测试页面已加载');
+            console.log('📌 请查看右下角是否有收藏按钮');
+            console.log('⚙️ 如果是首次使用，应该显示配置按钮');
+        });
+    </script>
+</body>
+</html>

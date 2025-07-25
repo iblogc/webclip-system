@@ -1,0 +1,49 @@
+{
+  "gist_id": "your-gist-id-here",
+  "github_token": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "output_dir": "~/Documents/KnowledgeRepo",
+  "ai": {
+    "providers": [
+      { 
+        "type": "openai", 
+        "api_key": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "model": "gpt-3.5-turbo",
+        "base_url": "https://api.openai.com/v1"
+      },
+      { 
+        "type": "gemini", 
+        "api_key": "AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "model": "gemini-pro",
+        "base_url": "https://generativelanguage.googleapis.com"
+      },
+      {
+        "type": "openai",
+        "api_key": "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "model": "gpt-3.5-turbo",
+        "base_url": "https://api.deepseek.com/v1",
+        "comment": "DeepSeek API 示例"
+      },
+      {
+        "type": "openai",
+        "api_key": "your-api-key",
+        "model": "qwen-turbo",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "comment": "阿里云通义千问 API 示例"
+      }
+    ],
+    "proxy": {
+      "enabled": false,
+      "http_proxy": "http://127.0.0.1:7890",
+      "https_proxy": "http://127.0.0.1:7890"
+    }
+  },
+  "git": {
+    "auto_commit": true,
+    "commit_message_template": "新增网页记录：{title}"
+  },
+  "processing": {
+    "interval_minutes": 10,
+    "timeout_seconds": 30,
+    "max_retries": 3
+  }
+}

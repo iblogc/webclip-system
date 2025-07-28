@@ -148,7 +148,7 @@ async function summarizeContent(content, aiConfig, globalConfig) {
 
     let lastError = null;
 
-    // 依次尝试每个提供商
+    // 依次尝试每个提供商（支持多个API密钥轮换）
     for (const providerConfig of providers) {
         try {
             let provider;
@@ -165,7 +165,9 @@ async function summarizeContent(content, aiConfig, globalConfig) {
                     continue;
             }
 
-            console.log(`🤖 尝试使用 ${providerConfig.type} 生成摘要...`);
+            const providerName = providerConfig.name || providerConfig.type;
+            console.log(`🤖 尝试使用 ${providerName} (${providerConfig.model}) 生成摘要...`);
+            
             const result = await provider.summarize(content);
             
             // 验证结果
@@ -176,11 +178,12 @@ async function summarizeContent(content, aiConfig, globalConfig) {
             // 限制标签数量
             result.tags = result.tags.slice(0, 5);
             
-            console.log(`✅ ${providerConfig.type} 摘要生成成功`);
+            console.log(`✅ ${providerName} 摘要生成成功`);
             return result;
 
         } catch (error) {
-            console.warn(`⚠️ ${providerConfig.type} 失败: ${error.message}`);
+            const providerName = providerConfig.name || providerConfig.type;
+            console.warn(`⚠️ ${providerName} 失败: ${error.message}`);
             lastError = error;
             continue;
         }

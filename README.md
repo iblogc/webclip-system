@@ -6,7 +6,7 @@
 
 - 🌐 **浏览器一键收藏**: 通过油猴脚本在任何网页上一键收藏
 - 📝 **自动 Markdown 转换**: 使用 Puppeteer + Readability 提取正文内容
-- 🤖 **AI 智能摘要**: 支持 OpenAI 和 Gemini 生成摘要和标签（可开关）
+- 🤖 **AI 智能摘要**: 支持多种 AI 服务生成摘要和标签，支持 API 密钥轮换（可开关）
 - 📷 **图片资源下载**: 自动下载网络图片和转换 base64 图片为本地文件
 - 🌐 **代理支持**: AI 调用和图片下载支持 HTTP 代理
 - 📁 **分类管理**: 按分类自动整理文件
@@ -15,7 +15,77 @@
 
 ## 🚀 快速开始
 
-### 1. 安装依赖
+### 部署方式选择
+
+**方式一：GitHub Actions部署（推荐）**
+- ✅ 完全在线运行，无需本地环境
+- ✅ 自动定时处理，无需手动维护
+- ✅ 免费使用（公开仓库）
+- ✅ 支持邮件通知和自动清理
+
+**方式二：本地部署**
+- 需要本地Node.js环境
+- 需要配置定时任务
+- 适合高度自定义需求
+
+### GitHub Actions部署（推荐）
+
+详细部署指南请参考：[GitHub Actions部署指南](docs/GITHUB_ACTIONS_SETUP.md)
+
+**快速步骤**：
+1. Fork此仓库到你的GitHub账号
+2. 创建私有仓库存储结果
+3. 配置GitHub Secrets（包括AI服务配置）
+4. 启用Actions工作流
+
+> 🔧 **AI服务配置**：支持多种AI服务和API密钥轮换，详见 [AI服务提供商配置指南](docs/AI_PROVIDERS_CONFIG.md)
+
+#### 必需配置的Secrets
+
+**基础配置**：
+```
+GIST_ID                 # GitHub Gist ID
+GITHUB_TOKEN           # GitHub访问令牌
+TARGET_REPO            # 目标私有仓库 (username/repo-name)
+TARGET_REPO_TOKEN      # 目标仓库访问令牌
+```
+
+**AI服务配置**（至少配置一个）：
+```
+# OpenAI（支持多个API密钥，逗号分隔）
+OPENAI_API_KEY         # sk-key1,sk-key2,sk-key3
+OPENAI_MODEL           # gpt-3.5-turbo (可选)
+OPENAI_BASE_URL        # https://api.openai.com/v1 (可选)
+
+# Gemini（支持多个API密钥，逗号分隔）
+GEMINI_API_KEY         # AIzaSy-key1,AIzaSy-key2
+GEMINI_MODEL           # gemini-2.0-flash (可选)
+GEMINI_BASE_URL        # https://generativelanguage.googleapis.com (可选)
+
+# 自定义AI配置（JSON格式）
+CUSTOM_AI_CONFIG       # [{"type":"openai","api_key":"sk-xxx","model":"gpt-4","base_url":"https://api.deepseek.com/v1"}]
+```
+
+> 💡 **详细AI配置指南**：[AI服务提供商配置指南](docs/AI_PROVIDERS_CONFIG.md)  
+> 支持OpenAI、Gemini、DeepSeek、通义千问、Kimi等多种AI服务，包含多API密钥轮换、故障转移等高级功能。
+
+**可选配置**：
+```
+CRON_EXPRESSION        # */15 * * * * (定时运行)
+ENABLE_AI_SUMMARY      # true/false (启用AI摘要)
+ENABLE_RESOURCE_DOWNLOAD # true/false (启用资源下载)
+HTTP_PROXY             # 代理设置
+HTTPS_PROXY            # 代理设置
+NOTIFICATION_EMAIL     # 邮件通知
+EMAIL_SMTP_HOST        # 邮件服务器
+EMAIL_SMTP_PORT        # 邮件端口
+EMAIL_USER             # 邮件用户名
+EMAIL_PASS             # 邮件密码
+```
+
+### 本地部署
+
+#### 1. 安装依赖
 
 ```bash
 npm install
@@ -24,7 +94,7 @@ npm install
 npx puppeteer browsers install chrome
 ```
 
-### 2. 配置系统
+#### 2. 配置系统
 
 编辑 `config/config.json` 文件：
 
@@ -69,7 +139,7 @@ npx puppeteer browsers install chrome
 - 本地部署模型（Ollama 等）
 - 任何兼容 OpenAI API 的服务
 
-### 3. 运行设置向导
+#### 3. 运行设置向导
 
 ```bash
 node setup.js
@@ -82,7 +152,7 @@ node setup.js
 - 初始化 Git 仓库
 - 设置定时任务
 
-### 4. 安装浏览器脚本
+## 📱 浏览器脚本安装
 
 1. 安装 Tampermonkey 浏览器扩展
 2. 复制 `oilmonkey/clip-to-gist.user.js` 内容到 Tampermonkey
@@ -97,7 +167,7 @@ node setup.js
 - 🎨 **界面自定义**: 按钮位置、大小、颜色可调
 - ⚙️ **右键配置**: 右键点击按钮快速打开设置
 
-### 5. 开始使用
+## 📝 开始使用
 
 1. 在任何网页上点击右下角的 📌 按钮
 2. 填写分类和备注信息
@@ -112,6 +182,14 @@ webclip-system/
 │   └── clip-to-gist.user.js
 ├── config/                 # 配置文件
 │   └── config.json
+├── .github/workflows/      # GitHub Actions工作流
+│   └── webclip-processor.yml
+├── scripts/                # Actions脚本
+│   ├── setup-config.js     # 动态配置生成
+│   ├── actions-processor.js # Actions处理器
+│   ├── push-to-target.js   # 推送到目标仓库
+│   ├── send-notification.js # 邮件通知
+│   └── cleanup-workflows.js # 清理旧工作流
 ├── client/                 # 客户端处理器
 │   ├── process_gist.js     # 主处理程序
 │   ├── summarize.js        # AI摘要模块
@@ -119,126 +197,20 @@ webclip-system/
 │   ├── resource-downloader.js # 资源下载模块
 │   ├── network-helper.js   # 网络请求助手
 │   └── git-sync.js         # Git同步模块
+├── docs/                   # 文档
+│   ├── GITHUB_ACTIONS_SETUP.md # Actions部署指南
+│   └── AI_PROVIDERS_CONFIG.md  # AI服务配置指南
 ├── launchd/               # macOS定时任务
 │   └── com.webclip.processor.plist
 ├── setup.js               # 设置向导
 └── README.md
 ```
 
-## 🔧 配置说明
+## 🔧 详细配置
 
-### GitHub 配置
-
-1. 创建 GitHub Personal Access Token
-
-   - 访问 GitHub Settings > Developer settings > Personal access tokens
-   - 创建 token，需要 `gist` 权限
-
-2. 创建私有 Gist
-   - 访问 https://gist.github.com
-   - 创建新的私有 Gist，文件名为 `webclip-queue.json`
-   - 初始内容：`{"items":[]}`
-
-### 代理配置
-
-系统支持智能代理切换，优先直连，失败后自动切换代理重试：
-
-```json
-{
-  "proxy": {
-    "http_proxy": "http://127.0.0.1:7890",
-    "https_proxy": "http://127.0.0.1:7890"
-  }
-}
-```
-
-**代理功能特点**：
-
-- 🔄 **智能重试**: 优先直连，失败后自动切换代理
-- 🌐 **全局支持**: AI 调用和图片下载都支持代理
-- ⚡ **无缝切换**: 无需手动开关，自动选择最佳连接方式
-- 🛡️ **容错机制**: 代理失败不影响整体功能
-
-### AI 配置
-
-支持多个 AI 提供商，按顺序尝试：
-
-```json
-{
-  "ai": {
-    "providers": [
-      {
-        "type": "openai",
-        "api_key": "sk-...",
-        "model": "gpt-3.5-turbo"
-      },
-      {
-        "type": "gemini",
-        "api_key": "AI...",
-        "model": "gemini-pro"
-      }
-    ]
-  }
-}
-```
-
-### 功能开关配置
-
-```json
-{
-  "features": {
-    "ai_summary": true, // 是否启用AI摘要和标签生成
-    "download_resources": true // 是否启用资源下载功能
-  }
-}
-```
-
-### 资源下载配置
-
-```json
-{
-  "resources": {
-    "download_images": true, // 是否下载图片
-    "download_timeout": 10, // 下载超时时间（秒）
-    "max_file_size_mb": 10, // 最大文件大小（MB）
-    "allowed_extensions": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"], // 允许的文件扩展名
-    "assets_folder": "assets" // 资源文件夹名称
-  }
-}
-```
-
-**资源下载功能说明**：
-
-- 自动识别 Markdown 中的图片链接（HTTP URL 和 base64）
-- 下载网络图片到本地 `assets/文章名/` 目录
-- 转换 base64 图片为本地文件
-- 自动替换 Markdown 中的图片引用为本地路径
-- 支持代理下载
-- 支持文件大小和类型限制
-- 支持多种图片格式：JPG、PNG、GIF、WebP、SVG
-
-## 📱 定时任务设置
-
-### macOS (launchd)
-
-```bash
-# 加载任务
-launchctl load ~/Library/LaunchAgents/com.webclip.processor.plist
-
-# 启动任务
-launchctl start com.webclip.processor
-
-# 查看状态
-launchctl list | grep webclip
-```
-
-### Windows (任务计划程序)
-
-以管理员身份运行：
-
-```cmd
-schtasks /create /tn "WebClipProcessor" /tr "\"C:\path\to\node.exe\" \"C:\path\to\webclip-system\client\process_gist.js\"" /sc minute /mo 10 /f
-```
+详细的配置说明请参考：
+- [GitHub Actions部署指南](docs/GITHUB_ACTIONS_SETUP.md) - 云端部署配置
+- [AI服务配置指南](docs/AI_PROVIDERS_CONFIG.md) - AI服务和API密钥配置
 
 ## 📄 生成的 Markdown 格式
 
@@ -273,41 +245,7 @@ npm start
 
 ## 🐛 故障排除
 
-### 常见问题
-
-1. **Puppeteer 安装失败**
-
-   ```bash
-   npm config set puppeteer_skip_chromium_download true
-   npm install puppeteer
-   ```
-
-2. **权限错误**
-
-   - 确保 GitHub Token 有正确的权限
-   - 检查输出目录的写入权限
-
-3. **网页抓取失败**
-   - 某些网站可能有反爬虫机制
-   - 检查网络连接和代理设置
-
-### 日志查看
-
-- macOS: `/tmp/webclip-processor.log`
-- Windows: 任务计划程序中查看历史记录
-- 错误文件: `输出目录/errors/`
-
-## 📝 开发说明
-
-### 添加新的 AI 提供商
-
-1. 在 `client/summarize.js` 中创建新的 Provider 类
-2. 实现 `summarize(content)` 方法
-3. 在配置文件中添加对应配置
-
-### 自定义 Markdown 转换
-
-修改 `client/markdown-builder.js` 中的 Turndown 规则。
+常见问题和解决方案请参考：[GitHub Actions部署指南](docs/GITHUB_ACTIONS_SETUP.md#故障排除)
 
 ## 📄 许可证
 
@@ -315,11 +253,9 @@ MIT License
 
 ## 📚 相关文档
 
-- [使用指南](USAGE.md) - 详细的配置和使用说明
-- [脚本安装指南](SCRIPT_INSTALL.md) - 油猴脚本安装和配置详解
-- [配置管理指南](CONFIG_MANAGEMENT.md) - 可视化配置功能详解
-- [AI 配置指南](AI_CONFIG.md) - 支持多种 AI 服务的配置方法
-- [项目完成总结](项目完成总结.md) - 完整功能清单和技术总结
+- [GitHub Actions部署指南](docs/GITHUB_ACTIONS_SETUP.md) - 完整的云端部署指南
+- [AI服务配置指南](docs/AI_PROVIDERS_CONFIG.md) - 多AI服务配置和API密钥管理
+- [项目总结](docs/PROJECT_SUMMARY.md) - 完整功能清单和技术总结
 
 ## 🤝 贡献
 

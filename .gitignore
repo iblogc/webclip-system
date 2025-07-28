@@ -8,3 +8,6 @@ build/
 .env.test.local
 .env.production.local
 **/config.json
+logs/
+test-*.js
+test-*.html

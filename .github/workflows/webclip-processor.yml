@@ -1,0 +1,110 @@
+name: Web Clip Processor
+
+on:
+  schedule:
+    # 默认每10分钟执行一次，可通过配置调整
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: '强制运行处理器'
+        required: false
+        default: 'false'
+        type: boolean
+      custom_cron:
+        description: '自定义cron表达式（用于测试）'
+        required: false
+        type: string
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  process-webclips:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        # 安装GitHub Actions专用依赖
+        npm install @actions/core @actions/github nodemailer
+        
+    - name: Setup Chrome for Puppeteer
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser
+        
+    - name: Generate dynamic configuration
+      run: node scripts/setup-config.js
+      env:
+        GIST_ID: ${{ secrets.GIST_ID }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TARGET_REPO: ${{ secrets.TARGET_REPO }}
+        TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+        GEMINI_BASE_URL: ${{ secrets.GEMINI_BASE_URL }}
+        CUSTOM_AI_CONFIG: ${{ secrets.CUSTOM_AI_CONFIG }}
+        HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+        HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        EMAIL_SMTP_HOST: ${{ secrets.EMAIL_SMTP_HOST }}
+        EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        CRON_EXPRESSION: ${{ secrets.CRON_EXPRESSION }}
+        ENABLE_AI_SUMMARY: ${{ secrets.ENABLE_AI_SUMMARY }}
+        ENABLE_RESOURCE_DOWNLOAD: ${{ secrets.ENABLE_RESOURCE_DOWNLOAD }}
+        
+    - name: Process web clips
+      id: process
+      run: node scripts/actions-processor.js
+      continue-on-error: true
+      
+    - name: Commit and push to target repository
+      if: steps.process.outcome == 'success'
+      run: node scripts/push-to-target.js
+      env:
+        TARGET_REPO: ${{ secrets.TARGET_REPO }}
+        TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+        
+    - name: Send notification email
+      if: always()
+      run: node scripts/send-notification.js
+      env:
+        PROCESS_RESULT: ${{ steps.process.outcome }}
+        NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+        EMAIL_SMTP_HOST: ${{ secrets.EMAIL_SMTP_HOST }}
+        EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        
+    - name: Cleanup old workflow runs
+      if: always()
+      run: node scripts/cleanup-workflows.js
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: error-logs
+        path: |
+          logs/
+          temp/
+        retention-days: 7

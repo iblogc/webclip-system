@@ -700,7 +700,9 @@
                             : ""
                         }>右上角</option>
                         <option value="top-left" ${
-                          config.BUTTON_POSITION === "top-left" ? "selected" : ""
+                          config.BUTTON_POSITION === "top-left"
+                            ? "selected"
+                            : ""
                         }>左上角</option>
                     </select>
                 </div>
@@ -843,10 +845,7 @@
 
         if (response.status === 200) {
           const gist = JSON.parse(response.responseText);
-          showNotification(
-            `✅ Gist 连接成功！`,
-            "success"
-          );
+          showNotification(`✅ Gist 连接成功！`, "success");
         } else if (response.status === 404) {
           showNotification("❌ Gist 不存在或无权限访问", "error");
         } else if (response.status === 401) {

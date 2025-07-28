@@ -55,9 +55,9 @@ class MarkdownBuilder {
         });
     }
 
-    async initBrowser() {
+    async initBrowser(customConfig = {}) {
         if (!this.browser) {
-            this.browser = await puppeteer.launch({
+            const defaultConfig = {
                 headless: 'new',
                 args: [
                     '--no-sandbox',
@@ -68,6 +68,11 @@ class MarkdownBuilder {
                     '--no-zygote',
                     '--single-process'
                 ]
+            };
+            
+            this.browser = await puppeteer.launch({
+                ...defaultConfig,
+                ...customConfig
             });
         }
         return this.browser;
@@ -80,8 +85,8 @@ class MarkdownBuilder {
         }
     }
 
-    async fetchPageContent(url) {
-        const browser = await this.initBrowser();
+    async fetchPageContent(url, puppeteerConfig = {}) {
+        const browser = await this.initBrowser(puppeteerConfig);
         const page = await browser.newPage();
         
         try {
@@ -191,12 +196,12 @@ class MarkdownBuilder {
         return processed;
     }
 
-    async buildMarkdown(url) {
+    async buildMarkdown(url, puppeteerConfig = {}) {
         try {
             console.log(`🔧 开始构建Markdown: ${url}`);
             
             // 1. 获取页面HTML
-            const html = await this.fetchPageContent(url);
+            const html = await this.fetchPageContent(url, puppeteerConfig);
             
             // 2. 提取可读内容
             const article = this.extractReadableContent(html, url);
@@ -219,8 +224,8 @@ class MarkdownBuilder {
 const markdownBuilder = new MarkdownBuilder();
 
 // 导出函数
-async function buildMarkdown(url) {
-    return await markdownBuilder.buildMarkdown(url);
+async function buildMarkdown(url, puppeteerConfig = {}) {
+    return await markdownBuilder.buildMarkdown(url, puppeteerConfig);
 }
 
 // 优雅关闭

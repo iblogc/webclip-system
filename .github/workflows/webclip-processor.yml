@@ -22,7 +22,7 @@ env:
 jobs:
   process-webclips:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20  # 增加超时时间到45分钟
     
     steps:
     - name: Checkout code
@@ -75,7 +75,7 @@ jobs:
       continue-on-error: true
       
     - name: Commit and push to target repository
-      if: steps.process.outcome == 'success'
+      if: steps.process.outcome == 'success' || steps.process.outcome == 'cancelled'
       run: node scripts/push-to-target.js
       env:
         TARGET_REPO: ${{ secrets.TARGET_REPO }}

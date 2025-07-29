@@ -216,7 +216,7 @@ class ActionsGistProcessor extends GistProcessor {
       
       await fs.writeFile('./temp/report.json', JSON.stringify(report, null, 2));
       await this.log('📊 处理报告已生成');
-      
+      process.exit(0)
     } catch (error) {
       await this.log(`❌ 处理器运行失败: ${error.message}`);
       core.setFailed(error.message);

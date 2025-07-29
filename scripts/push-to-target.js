@@ -63,12 +63,12 @@ async function pushToTargetRepo() {
       const report = JSON.parse(reportData);
       
       if (report.processed > 0) {
-        const titles = report.processedItems.map(item => item.title).slice(0, 3);
+        const titles = report.processedItems.map(item => item.title).slice(0, 20);
         commitMessage = `新增 ${report.processed} 篇文章`;
         if (titles.length > 0) {
           commitMessage += `\n\n包含:\n${titles.map(title => `- ${title}`).join('\n')}`;
-          if (report.processed > 3) {
-            commitMessage += `\n- 以及其他 ${report.processed - 3} 篇文章`;
+          if (report.processed > 20) {
+            commitMessage += `\n- 以及其他 ${report.processed - 20} 篇文章`;
           }
         }
       }

@@ -77,7 +77,7 @@ Web收藏转Markdown系统是一个完整的网页收藏解决方案，支持从
 ### GitHub Secrets配置
 ```
 # 基础配置
-GIST_ID, GITHUB_TOKEN, TARGET_REPO, TARGET_REPO_TOKEN
+GIST_ID, TOKEN, TARGET_REPO
 
 # AI服务（支持多密钥）
 OPENAI_API_KEY=key1,key2,key3

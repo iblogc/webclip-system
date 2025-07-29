@@ -45,9 +45,8 @@
 **基础配置**：
 ```
 GIST_ID                 # GitHub Gist ID
-GITHUB_TOKEN           # GitHub访问令牌
+TOKEN                   # GitHub访问令牌
 TARGET_REPO            # 目标私有仓库 (username/repo-name)
-TARGET_REPO_TOKEN      # 目标仓库访问令牌
 ```
 
 **AI服务配置**（至少配置一个）：

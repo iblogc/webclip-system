@@ -9,9 +9,9 @@ async function setupConfig() {
     // 从环境变量读取配置
     const config = {
       gist_id: process.env.GIST_ID,
-      github_token: process.env.GITHUB_TOKEN,
+      github_token: process.env.TOKEN,
       target_repo: process.env.TARGET_REPO,
-      target_repo_token: process.env.TARGET_REPO_TOKEN,
+      target_repo_token: process.env.TOKEN,
       output_dir: "./temp/output",
 
       proxy: {

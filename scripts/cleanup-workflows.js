@@ -3,7 +3,7 @@ const core = require('@actions/core');
 
 async function cleanupWorkflows() {
   try {
-    const token = process.env.GITHUB_TOKEN;
+    const token = process.env.TOKEN;
     if (!token) {
       console.log('⚠️ 未提供GitHub Token，跳过清理');
       return;

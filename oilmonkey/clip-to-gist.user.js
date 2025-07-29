@@ -20,7 +20,7 @@
   // 默认配置
   const DEFAULT_CONFIG = {
     GIST_ID: "",
-    GITHUB_TOKEN: "",
+    TOKEN: "",
     CATEGORY_OPTIONS: ["阅读", "写作", "设计", "产品", "技术", "其他"],
     BUTTON_POSITION: "bottom-right", // bottom-right, bottom-left, top-right, top-left
     BUTTON_SIZE: 56,
@@ -68,7 +68,7 @@
     }
 
     isConfigured() {
-      return this.config.GIST_ID && this.config.GITHUB_TOKEN;
+      return this.config.GIST_ID && this.config.TOKEN;
     }
 
     reset() {
@@ -540,7 +540,7 @@
         method: "GET",
         url: `https://api.github.com/gists/${configManager.get("GIST_ID")}`,
         headers: {
-          Authorization: `token ${configManager.get("GITHUB_TOKEN")}`,
+          Authorization: `token ${configManager.get("TOKEN")}`,
           Accept: "application/vnd.github.v3+json",
         },
         onload: function (response) {
@@ -565,7 +565,7 @@
         method: "PATCH",
         url: `https://api.github.com/gists/${configManager.get("GIST_ID")}`,
         headers: {
-          Authorization: `token ${configManager.get("GITHUB_TOKEN")}`,
+          Authorization: `token ${configManager.get("TOKEN")}`,
           Accept: "application/vnd.github.v3+json",
           "Content-Type": "application/json",
         },
@@ -664,7 +664,7 @@
             <div class="webclip-field">
                 <label class="webclip-label">GitHub Token *</label>
                 <input type="password" class="webclip-input" id="config-github-token" value="${
-                  config.GITHUB_TOKEN
+                  config.TOKEN
                 }" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" title="需要 gist 权限的 GitHub Personal Access Token">
                 <small style="color: #666; font-size: 11px; margin-top: 2px; display: block;">
                     需要 <strong>gist</strong> 权限
@@ -909,7 +909,7 @@
     // 保存配置
     configManager.saveConfig({
       GIST_ID: gistId,
-      GITHUB_TOKEN: githubToken,
+      TOKEN: githubToken,
       CATEGORY_OPTIONS: categories,
       BUTTON_POSITION: position,
       BUTTON_SIZE: size,

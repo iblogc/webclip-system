@@ -13,7 +13,7 @@ async function pushToTargetRepo() {
     const config = JSON.parse(configData);
     
     const targetRepo = process.env.TARGET_REPO;
-    const targetToken = process.env.TARGET_REPO_TOKEN;
+    const targetToken = process.env.TOKEN;
     
     if (!targetRepo || !targetToken) {
       throw new Error('缺少目标仓库配置');

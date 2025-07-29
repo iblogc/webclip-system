@@ -49,9 +49,8 @@ jobs:
       run: node scripts/setup-config.js
       env:
         GIST_ID: ${{ secrets.GIST_ID }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TOKEN: ${{ secrets.TOKEN }}
         TARGET_REPO: ${{ secrets.TARGET_REPO }}
-        TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
         OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
@@ -80,7 +79,7 @@ jobs:
       run: node scripts/push-to-target.js
       env:
         TARGET_REPO: ${{ secrets.TARGET_REPO }}
-        TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+        TOKEN: ${{ secrets.TOKEN }}
         
     - name: Send notification email
       if: always()
@@ -97,7 +96,7 @@ jobs:
       if: always()
       run: node scripts/cleanup-workflows.js
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TOKEN: ${{ secrets.TOKEN }}
         
     - name: Upload artifacts on failure
       if: failure()

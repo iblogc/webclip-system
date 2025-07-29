@@ -57,7 +57,7 @@
    ```javascript
    const CONFIG = {
      GIST_ID: "你的Gist ID",
-     GITHUB_TOKEN: "你的GitHub Token",
+     TOKEN: "你的GitHub Token",
      CATEGORY_OPTIONS: ["阅读", "写作", "设计", "产品", "技术", "其他"],
    };
    ```

@@ -29,9 +29,8 @@
 #### 必需配置
 ```
 GIST_ID=your-gist-id-here
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TARGET_REPO=username/my-knowledge-base
-TARGET_REPO_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 #### AI服务配置（至少配置一个）
@@ -57,14 +56,11 @@ CUSTOM_AI_CONFIG=[{"type":"openai","api_key":"sk-xxx","model":"gpt-4","base_url"
 Name: GIST_ID
 Secret: 99cf68d262106d70a44d224f95642139
 
-Name: GITHUB_TOKEN  
+Name: TOKEN  
 Secret: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Name: TARGET_REPO
 Secret: username/my-knowledge-base
-
-Name: TARGET_REPO_TOKEN
-Secret: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 #### AI服务配置（选择一个或多个）
@@ -154,12 +150,8 @@ CRON_EXPRESSION=*/15 * * * *
 
 ### 3. Token权限配置
 
-**GITHUB_TOKEN**（用于访问Gist）：
-- 权限：`gist`, `repo`（如果Gist在私有仓库中）
-
-**TARGET_REPO_TOKEN**（用于推送到目标仓库）：
-- 权限：`repo`
-- 必须有目标仓库的写入权限
+**TOKEN**（用于访问Gist）：
+- 权限：`gist`, 目标仓库的写入权限
 
 ### 4. 邮件通知配置
 

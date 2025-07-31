@@ -2,8 +2,7 @@ name: Web Clip Processor
 
 on:
   schedule:
-    # 默认每10分钟执行一次，可通过配置调整
-    - cron: '*/10 * * * *'
+    - cron: '0 */1 * * *'
   workflow_dispatch:
     inputs:
       force_run:
@@ -40,12 +39,29 @@ jobs:
         # 安装GitHub Actions专用依赖
         npm install @actions/core @actions/github nodemailer
         
+    - name: Check Gist content
+      id: check_content
+      run: node scripts/check-gist-content.js
+      env:
+        GIST_ID: ${{ secrets.GIST_ID }}
+        TOKEN: ${{ secrets.TOKEN }}
+        
+    - name: Skip if no content
+      if: steps.check_content.outputs.should_process == 'false' && github.event.inputs.force_run != 'true'
+      run: |
+        echo "📭 Gist内容为空，跳过处理以节省资源"
+        echo "跳过原因: ${{ steps.check_content.outputs.skip_reason }}"
+        echo "如需强制运行，请使用workflow_dispatch并设置force_run为true"
+        exit 0
+        
     - name: Setup Chrome for Puppeteer
+      if: steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true'
       run: |
         sudo apt-get update
         sudo apt-get install -y chromium-browser
         
     - name: Generate dynamic configuration
+      if: steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true'
       run: node scripts/setup-config.js
       env:
         GIST_ID: ${{ secrets.GIST_ID }}
@@ -57,7 +73,9 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
         GEMINI_BASE_URL: ${{ secrets.GEMINI_BASE_URL }}
-        CUSTOM_AI_CONFIG: ${{ secrets.CUSTOM_AI_CONFIG }}
+        CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        CLAUDE_MODEL: ${{ secrets.CLAUDE_MODEL }}
+        CLAUDE_BASE_URL: ${{ secrets.CLAUDE_BASE_URL }}
         HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
         HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
@@ -65,27 +83,29 @@ jobs:
         EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-        CRON_EXPRESSION: ${{ secrets.CRON_EXPRESSION }}
         ENABLE_AI_SUMMARY: ${{ secrets.ENABLE_AI_SUMMARY }}
         ENABLE_RESOURCE_DOWNLOAD: ${{ secrets.ENABLE_RESOURCE_DOWNLOAD }}
         
     - name: Process web clips
       id: process
+      if: steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true'
       run: node scripts/actions-processor.js
       continue-on-error: true
       
     - name: Commit and push to target repository
-      if: steps.process.outcome == 'success' || steps.process.outcome == 'cancelled'
+      if: (steps.process.outcome == 'success' || steps.process.outcome == 'cancelled') && (steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true')
       run: node scripts/push-to-target.js
       env:
         TARGET_REPO: ${{ secrets.TARGET_REPO }}
         TOKEN: ${{ secrets.TOKEN }}
         
     - name: Send notification email
-      if: always()
+      if: always() && (steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true' || steps.check_content.outputs.should_process == 'false')
       run: node scripts/send-notification.js
       env:
-        PROCESS_RESULT: ${{ steps.process.outcome }}
+        PROCESS_RESULT: ${{ steps.process.outcome || 'skipped' }}
+        SKIP_REASON: ${{ steps.check_content.outputs.skip_reason }}
+        CONTENT_SUMMARY: ${{ steps.check_content.outputs.content_summary }}
         NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
         EMAIL_SMTP_HOST: ${{ secrets.EMAIL_SMTP_HOST }}
         EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}

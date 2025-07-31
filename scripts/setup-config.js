@@ -48,7 +48,6 @@ async function setupConfig() {
       },
 
       actions: {
-        cron_expression: process.env.CRON_EXPRESSION || "*/10 * * * *",
         notification_email: process.env.NOTIFICATION_EMAIL,
         email_config: {
           smtp_host: process.env.EMAIL_SMTP_HOST,
@@ -99,23 +98,23 @@ async function setupConfig() {
       });
     }
 
-    // 支持自定义AI提供商配置
-    if (process.env.CUSTOM_AI_CONFIG) {
-      try {
-        const customConfigs = JSON.parse(process.env.CUSTOM_AI_CONFIG);
-        if (Array.isArray(customConfigs)) {
-          customConfigs.forEach((customConfig, index) => {
-            if (customConfig.api_key && customConfig.type) {
-              config.ai.providers.push({
-                ...customConfig,
-                name: customConfig.name || `custom-${index + 1}`,
-              });
-            }
-          });
-        }
-      } catch (error) {
-        console.warn("⚠️ 自定义AI配置解析失败:", error.message);
-      }
+    if (process.env.CLAUDE_API_KEY) {
+      const apiKeys = process.env.CLAUDE_API_KEY.split(",").map((key) =>
+        key.trim()
+      );
+      const model = process.env.CLAUDE_MODEL || "claude-3-sonnet-20240229";
+      const baseUrl =
+        process.env.CLAUDE_BASE_URL || "https://api.anthropic.com";
+
+      apiKeys.forEach((apiKey, index) => {
+        config.ai.providers.push({
+          type: "claude",
+          api_key: apiKey,
+          model: model,
+          base_url: baseUrl,
+          name: `claude-${index + 1}`,
+        });
+      });
     }
 
     // 验证必需配置
@@ -146,7 +145,6 @@ async function setupConfig() {
     console.log(
       `📧 邮件通知: ${config.actions.notification_email ? "启用" : "禁用"}`
     );
-    console.log(`⏰ Cron表达式: ${config.actions.cron_expression}`);
 
     // 设置Actions输出
     core.setOutput("config-path", configPath);

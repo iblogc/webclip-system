@@ -8,6 +8,7 @@
 - 📝 **自动 Markdown 转换**: 使用 Puppeteer + Readability 提取正文内容
 - 🤖 **AI 智能摘要**: 支持多种 AI 服务生成摘要和标签，支持 API 密钥轮换（可开关）
 - 📷 **图片资源下载**: 自动下载网络图片和转换 base64 图片为本地文件
+- ⚡ **智能预检查**: 自动检测待处理内容，空队列时跳过处理节省资源
 - 🌐 **代理支持**: AI 调用和图片下载支持 HTTP 代理
 - 📁 **分类管理**: 按分类自动整理文件
 - 🔄 **Git 自动同步**: 自动提交并推送到 GitHub 仓库
@@ -21,6 +22,7 @@
 - ✅ 完全在线运行，无需本地环境
 - ✅ 自动定时处理，无需手动维护
 - ✅ 免费使用（公开仓库）
+- ✅ 智能预检查，空内容时自动跳过节省资源
 - ✅ 支持邮件通知和自动清理
 
 **方式二：本地部署**
@@ -38,7 +40,9 @@
 3. 配置GitHub Secrets（包括AI服务配置）
 4. 启用Actions工作流
 
-> 🔧 **AI服务配置**：支持多种AI服务和API密钥轮换，详见 [AI服务提供商配置指南](docs/AI_PROVIDERS_CONFIG.md)
+> 📚 **相关文档**：
+> - 🔧 [AI服务提供商配置指南](docs/AI_PROVIDERS_CONFIG.md)
+> - ⚡ [性能优化指南](docs/PERFORMANCE_OPTIMIZATION.md)
 
 #### 必需配置的Secrets
 
@@ -70,7 +74,6 @@ CUSTOM_AI_CONFIG       # [{"type":"openai","api_key":"sk-xxx","model":"gpt-4","b
 
 **可选配置**：
 ```
-CRON_EXPRESSION        # */15 * * * * (定时运行)
 ENABLE_AI_SUMMARY      # true/false (启用AI摘要)
 ENABLE_RESOURCE_DOWNLOAD # true/false (启用资源下载)
 HTTP_PROXY             # 代理设置

@@ -14,6 +14,7 @@ Web收藏转Markdown系统是一个完整的网页收藏解决方案，支持从
 
 ### 🔄 处理端
 - **GitHub Actions**: 完全云端运行，无需本地环境
+- **智能预检查**: 自动检测Gist内容，空内容时跳过处理节省资源
 - **智能网页解析**: Puppeteer + Readability 提取正文
 - **AI智能摘要**: 支持多种AI服务，API密钥轮换
 - **图片资源处理**: 自动下载网络图片和转换base64图片
@@ -87,13 +88,31 @@ GEMINI_API_KEY=key1,key2
 CUSTOM_AI_CONFIG=[{"type":"openai","api_key":"xxx","model":"gpt-4"}]
 
 # 可选功能
-CRON_EXPRESSION, HTTP_PROXY, NOTIFICATION_EMAIL
+HTTP_PROXY, NOTIFICATION_EMAIL
 ```
 
 ### 功能开关
 - `ENABLE_AI_SUMMARY`: 控制AI摘要功能
 - `ENABLE_RESOURCE_DOWNLOAD`: 控制资源下载功能
 - 支持运行时动态配置
+
+## ⚡ 性能优化
+
+### 智能预检查机制
+- **早期检测**: Actions启动后立即检查Gist内容
+- **资源节约**: 空内容时跳过Chrome启动、依赖安装等耗时操作
+- **快速响应**: 预检查仅需几秒钟，大幅减少无效运行时间
+- **成本控制**: 显著降低GitHub Actions使用时间
+
+### 运行时优化
+- **条件执行**: 所有后续步骤都基于预检查结果条件执行
+- **强制运行**: 支持手动触发时强制跳过预检查
+- **智能通知**: 跳过时发送简化邮件通知，避免误报
+
+### 资源管理
+- **自动清理**: 定期清理旧的workflow运行记录
+- **超时控制**: 合理的超时设置避免资源浪费
+- **并发限制**: 防止多个实例同时运行
 
 ## 🎉 项目亮点
 
@@ -118,6 +137,13 @@ CRON_EXPRESSION, HTTP_PROXY, NOTIFICATION_EMAIL
 - 添加全文搜索和标签管理
 - 支持批量处理和数据分析
 
+## 📚 相关文档
+
+- [GitHub Actions部署指南](GITHUB_ACTIONS_SETUP.md) - 详细的云端部署教程
+- [AI服务提供商配置指南](AI_PROVIDERS_CONFIG.md) - 多种AI服务配置方法
+- [性能优化指南](PERFORMANCE_OPTIMIZATION.md) - 智能预检查和资源优化
+- [脚本安装指南](SCRIPT_INSTALL.md) - 浏览器脚本安装和使用
+
 ---
 
-这个项目展示了如何将现代云服务、AI技术和自动化工具结合，创建一个实用的知识管理解决方案。
+这个项目展示了如何将现代云服务、AI技术和自动化工具结合，创建一个实用的知识管理解决方案。通过智能预检查等优化机制，实现了高效、经济的自动化处理流程。

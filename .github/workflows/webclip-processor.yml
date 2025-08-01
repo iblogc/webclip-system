@@ -2,7 +2,7 @@ name: Web Clip Processor
 
 on:
   schedule:
-    - cron: '0 */1 * * *'
+    - cron: '0 6-23 * * *'
   workflow_dispatch:
     inputs:
       force_run:

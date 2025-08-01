@@ -82,6 +82,11 @@ OPENAI_BASE_URL        # https://api.openai.com/v1 (可选)
 GEMINI_API_KEY         # AIzaSy-key1,AIzaSy-key2
 GEMINI_MODEL           # gemini-2.0-flash (可选)
 GEMINI_BASE_URL        # https://generativelanguage.googleapis.com (可选)
+
+# Claude（支持多个API密钥，逗号分隔）
+CLAUDE_API_KEY         # sk-ant-key1,sk-ant-key2
+CLAUDE_MODEL           # claude-3-sonnet-20240229 (可选)
+CLAUDE_BASE_URL        # https://api.anthropic.com (可选)
 ```
 
 **可选配置**：
@@ -171,6 +176,18 @@ npx puppeteer browsers install chrome
   }
 }
 ```
+
+**支持的 AI 服务**：
+
+- OpenAI 官方 API
+- DeepSeek API
+- 阿里云通义千问
+- 月之暗面 Kimi
+- 智谱 AI
+- 百川 AI
+- Claude API
+- 本地部署模型（Ollama 等）
+- 任何兼容 OpenAI API 的服务
 
 #### 3. 运行设置向导
 
@@ -326,6 +343,16 @@ node setup.js
 }
 ```
 
+**Claude**：
+```json
+{
+  "type": "claude",
+  "api_key": "sk-ant-xxx",
+  "model": "claude-3-sonnet-20240229",
+  "base_url": "https://api.anthropic.com"
+}
+```
+
 ### 🔄 API密钥轮换机制
 
 系统会按照以下顺序尝试API密钥：
@@ -341,6 +368,7 @@ node setup.js
 ```bash
 OPENAI_API_KEY=sk-key1,sk-key2,sk-key3
 GEMINI_API_KEY=AIzaSy-key1,AIzaSy-key2
+CLAUDE_API_KEY=sk-ant-key1,sk-ant-key2
 ```
 
 生成的提供商列表：
@@ -349,6 +377,8 @@ GEMINI_API_KEY=AIzaSy-key1,AIzaSy-key2
 3. openai-3 (gpt-3.5-turbo) - sk-key3
 4. gemini-1 (gemini-2.0-flash) - AIzaSy-key1
 5. gemini-2 (gemini-2.0-flash) - AIzaSy-key2
+6. claude-1 (claude-3-sonnet-20240229) - sk-ant-key1
+7. claude-2 (claude-3-sonnet-20240229) - sk-ant-key2
 
 ### 🔧 配置选项
 
@@ -537,7 +567,7 @@ node scripts/test-gist-check.js
 
 ## 🔮 未来扩展
 
-- ……
+/
 
 ## 📄 许可证
 

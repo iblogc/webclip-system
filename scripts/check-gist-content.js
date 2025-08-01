@@ -35,10 +35,15 @@ async function checkGistContent() {
             info('✅ 发现待处理内容，继续执行Actions');
             setOutput('should_process', 'true');
             setOutput('content_summary', hasContent.summary);
+            
+            // 如果有错误，也输出错误信息
+            if (hasContent.error) {
+                setOutput('queue_error', hasContent.error);
+            }
         } else {
-            info('📭 Gist为空或无待处理内容，跳过处理');
+            info('📭 webclip-queue.json为空或无待处理项目，跳过处理');
             setOutput('should_process', 'false');
-            setOutput('skip_reason', 'Gist内容为空');
+            setOutput('skip_reason', 'webclip-queue.json中无待处理项目');
         }
         
     } catch (error) {
@@ -96,36 +101,54 @@ function fetchGist(gistId, token) {
 }
 
 function checkForContent(files) {
-    const contentFiles = [];
-    let totalSize = 0;
+    // 专门检查 webclip-queue.json 文件
+    const queueFile = files['webclip-queue.json'];
     
-    for (const [filename, fileData] of Object.entries(files)) {
-        if (!fileData.content) continue;
-        
-        const content = fileData.content.trim();
-        if (content.length === 0) continue;
-        
-        // 跳过明显的空文件或占位符
-        if (content === '[]' || content === '{}' || content === 'null') continue;
-        
-        contentFiles.push({
-            filename,
-            size: content.length,
-            preview: content.substring(0, 100)
-        });
-        
-        totalSize += content.length;
+    if (!queueFile || !queueFile.content) {
+        return null; // 没有队列文件
     }
     
-    if (contentFiles.length === 0) {
-        return null;
+    try {
+        const content = queueFile.content.trim();
+        if (!content) {
+            return null; // 文件内容为空
+        }
+        
+        // 解析JSON内容
+        const queueData = JSON.parse(content);
+        
+        // 检查items数组
+        if (!queueData.items || !Array.isArray(queueData.items)) {
+            return null; // 没有items数组
+        }
+        
+        const itemCount = queueData.items.length;
+        
+        if (itemCount === 0) {
+            return null; // items数组为空
+        }
+        
+        // 有待处理的items
+        return {
+            summary: `发现 ${itemCount} 个待处理项目`,
+            itemCount: itemCount,
+            queueSize: content.length,
+            items: queueData.items.slice(0, 3).map(item => ({
+                title: item.title || '未知标题',
+                url: item.url || '未知URL',
+                category: item.category || '未分类'
+            })) // 只显示前3个项目作为预览
+        };
+        
+    } catch (error) {
+        // JSON解析失败，可能文件损坏，保险起见继续处理
+        warning(`⚠️ 解析webclip-queue.json失败: ${error.message}`);
+        return {
+            summary: `队列文件存在但解析失败，建议检查格式`,
+            error: error.message,
+            queueSize: queueFile.content.length
+        };
     }
-    
-    return {
-        summary: `发现 ${contentFiles.length} 个文件，总大小 ${totalSize} 字符`,
-        files: contentFiles,
-        totalSize
-    };
 }
 
 // 如果直接运行此脚本

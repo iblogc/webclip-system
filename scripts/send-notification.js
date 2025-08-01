@@ -59,12 +59,13 @@ async function sendNotification() {
     let subject, htmlContent;
 
     if (isSkipped) {
-      subject = `📭 Web收藏处理已跳过 - 无待处理内容`;
+      subject = `📭 Web收藏处理已跳过 - 队列为空`;
       htmlContent = `
       <h2>📭 处理已跳过</h2>
       <p><strong>执行时间:</strong> ${new Date().toLocaleString("zh-CN")}</p>
-      <p><strong>跳过原因:</strong> ${skipReason || "Gist内容为空"}</p>
-      <p>💡 这是正常情况，说明当前没有新的网页收藏需要处理，节省了系统资源。</p>
+      <p><strong>跳过原因:</strong> ${skipReason || "webclip-queue.json中无待处理项目"}</p>
+      <p>💡 这是正常情况，说明当前webclip-queue.json为空或无待处理的收藏项目，智能预检查帮助节省了系统资源。</p>
+      <p>📋 预检查仅用时几秒钟，避免了不必要的Chrome启动和完整处理流程。</p>
       `;
     } else {
       subject = isSuccess

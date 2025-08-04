@@ -27,24 +27,28 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Check Gist content (fast pre-check)
+      id: check_content
+      run: |
+        chmod +x scripts/check-gist-content.sh
+        bash scripts/check-gist-content.sh
+      env:
+        GIST_ID: ${{ secrets.GIST_ID }}
+        TOKEN: ${{ secrets.TOKEN }}
+        
     - name: Setup Node.js
+      if: steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         
     - name: Install dependencies
+      if: steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true'
       run: |
         npm ci
         # 安装GitHub Actions专用依赖
         npm install @actions/core @actions/github nodemailer
-        
-    - name: Check Gist content
-      id: check_content
-      run: node scripts/check-gist-content.js
-      env:
-        GIST_ID: ${{ secrets.GIST_ID }}
-        TOKEN: ${{ secrets.TOKEN }}
         
     - name: Skip if no content
       if: steps.check_content.outputs.should_process == 'false' && github.event.inputs.force_run != 'true'

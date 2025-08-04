@@ -117,7 +117,7 @@ jobs:
         EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
         
     - name: Cleanup old workflow runs
-      if: always()
+      if: steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true'
       run: node scripts/cleanup-workflows.js
       env:
         TOKEN: ${{ secrets.TOKEN }}

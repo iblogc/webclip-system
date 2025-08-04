@@ -104,7 +104,7 @@ jobs:
         TOKEN: ${{ secrets.TOKEN }}
         
     - name: Send notification email
-      if: always() && (steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true' || steps.check_content.outputs.should_process == 'false')
+      if: steps.check_content.outputs.should_process == 'true' || github.event.inputs.force_run == 'true'
       run: node scripts/send-notification.js
       env:
         PROCESS_RESULT: ${{ steps.process.outcome || 'skipped' }}
